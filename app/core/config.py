@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_NAME: str
 
+    CHECKPOINT_DB_PATH: str = "./agent_checkpoints.db"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 

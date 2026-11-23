@@ -1,10 +1,13 @@
+import time
+
 from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager
-import time
 from fastapi import FastAPI, Request, Response
+
 from app.api.endpoints import chat
 from app.core.database import db, init_database
 from app.core.logger import logger
+from app.agents.assistant_agent import assistant_agent
 
 
 @asynccontextmanager
@@ -12,9 +15,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Starting up application and initializing MariaDB...")
     init_database()
     yield
-    logger.info("Shutting down application and closing MariaDB connection...")
+    logger.info("Shutting down application...")
+
     if not db.is_closed():
         db.close()
+
+    assistant_agent.close()
 
 
 app: FastAPI = FastAPI(

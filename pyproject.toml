@@ -1,0 +1,15 @@
+[project]
+name = "langchain-local-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "langchain>=1.5.2",
+    "langchain-ollama>=1.1.0",
+    "langgraph>=1.2.24",
+    "loguru>=0.8.0",
+    "peewee>=4.5.3",
+    "pydantic-settings>=2.16.3",
+    "pymysql>=1.2.4",
+]

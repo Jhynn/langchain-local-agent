@@ -128,14 +128,14 @@ def interactive_adk_chat(
         typer.Option(
             "--session-id",
             "-s",
-            help="ADK session identifier.",
+            help="ADK multi-agent session identifier.",
         ),
     ] = "adk-default-session",
 ) -> None:
-    """Starts an interactive multi-turn chat session using Google ADK."""
+    """Starts an interactive multi-turn chat session using the Google ADK multi-agent hierarchy."""
     init_database()
     typer.secho(
-        f"\nGoogle ADK Agent CLI ready | Session: '{session_id}' | Type 'exit' or 'quit' to stop.\n",
+        f"\nGoogle ADK Multi-Agent CLI ready | Session: '{session_id}' | Type 'exit' or 'quit' to stop.\n",
         fg=typer.colors.CYAN,
         bold=True,
     )
@@ -151,9 +151,12 @@ def interactive_adk_chat(
                 typer.secho("ADK session ended. Goodbye!", fg=typer.colors.YELLOW)
                 break
 
-            answer, tools_used = asyncio.run(
+            answer, tools_used, delegated_agents = asyncio.run(
                 adk_assistant_agent.run(user_input, session_id=session_id)
             )
+
+            if delegated_agents:
+                typer.secho(f"[ADK Sub-agents: {', '.join(delegated_agents)}]", fg=typer.colors.BLUE)
 
             if tools_used:
                 typer.secho(f"[ADK Tools used: {', '.join(tools_used)}]", fg=typer.colors.MAGENTA)

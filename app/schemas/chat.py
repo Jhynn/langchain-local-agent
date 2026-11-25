@@ -8,6 +8,7 @@ class ChatRequest(BaseModel):
         max_length=100,
         description="Unique conversation thread identifier (e.g., 'user-123')",
     )
+
     message: str = Field(
         ...,
         min_length=1,
@@ -20,7 +21,12 @@ class ChatResponse(BaseModel):
     reply: str
     tools_used: list[str] = Field(
         default_factory=list,
-        description="Tools invoked autonomously by the agent during this turn",
+        description="Tools invoked autonomously during this turn",
+    )
+
+    delegated_agents: list[str] = Field(
+        default_factory=list,
+        description="Specialist sub-agents invoked during multi-agent routing",
     )
 
 

@@ -8,9 +8,9 @@ router: APIRouter = APIRouter()
 @router.post("/", response_model=ChatResponse)
 async def chat_with_adk_agent(payload: ChatRequest) -> ChatResponse:
     """
-    Sends a message to the Google ADK agent within a managed session.
+    Sends a message to the Google ADK multi-agent coordinator within a managed session.
     """
-    reply, tools_used = await adk_assistant_agent.run(
+    reply, tools_used, delegated_agents = await adk_assistant_agent.run(
         user_input=payload.message,
         session_id=payload.session_id,
     )
@@ -19,6 +19,7 @@ async def chat_with_adk_agent(payload: ChatRequest) -> ChatResponse:
         session_id=payload.session_id,
         reply=reply,
         tools_used=tools_used,
+        delegated_agents=delegated_agents,
     )
 
 

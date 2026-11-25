@@ -18,7 +18,7 @@ This repository contrasts and combines three production-ready agentic orchestrat
 
 ## Key Features
 
-* **100% Local Execution:** Zero external API keys required; runs locally via Ollama (`llama3.2`).
+* **100% Local Execution:** Zero external API keys required; runs locally via Ollama (`llama3.2:3b`).
 * **Database Integration & Guardrails:** Connects to MariaDB using Peewee ORM for structured queries, alongside a read-only SQL execution tool that blocks destructive DDL/DML statements (`INSERT`, `UPDATE`, `DELETE`, `DROP`, `ALTER`).
 * **Persistent Session Memory:** Disk-backed SQLite checkpointing for LangGraph threads and session-managed state for Google ADK.
 * **Dual Interface:** Expose capabilities both through a typed **Typer CLI** and an asynchronous **FastAPI** web service with latency telemetry middleware.
@@ -27,7 +27,7 @@ This repository contrasts and combines three production-ready agentic orchestrat
 ## Tech Stack
 
 * **Agent Frameworks:** LangGraph, LangChain, Google ADK, LiteLLM
-* **Local LLM Runtime:** Ollama (`llama3.2`)
+* **Local LLM Runtime:** Ollama (`llama3.2:3b`)
 * **Web Framework:** FastAPI + Uvicorn
 * **CLI Framework:** Typer
 * **Database & ORM:** MariaDB + Peewee + PyMySQL
@@ -38,12 +38,12 @@ This repository contrasts and combines three production-ready agentic orchestrat
 
 ## Prerequisites
 
-* Python 3.12+
+* Python 3.13+
 * [uv](https://github.com/astral-sh/uv) installed
 * MariaDB server running locally
-* [Ollama](https://ollama.com/) running locally with the `llama3.2` model pulled:
+* [Ollama](https://ollama.com/) running locally with the `llama3.2:3b` model pulled (the LLM model must support `tools`):
   ```bash
-  ollama pull llama3.2
+  ollama pull llama3.2:3b
   ```
 
 ## Setup and Installation
@@ -62,7 +62,7 @@ This repository contrasts and combines three production-ready agentic orchestrat
    Create a `.env` file in the project root (do not wrap values in quotes):
    ```env
    OLLAMA_BASE_URL=http://localhost:11434
-   LLM_MODEL=llama3.2
+   LLM_MODEL=llama3.2:3b
    LLM_TEMPERATURE=0.0
 
    DB_USER=root
@@ -73,7 +73,9 @@ This repository contrasts and combines three production-ready agentic orchestrat
 
    CHECKPOINT_DB_PATH=./agent_checkpoints.db
    ```
-   *Note: On first startup, the application automatically creates the `expenses` table and seeds sample corporate expense records if the table is empty.*
+   > *Note: On first startup, the application automatically creates the `expenses` table and seeds sample corporate expense records if the table is empty.*
+
+   > *Note: A `.env.example` file is provided.*
 
 ## Usage Examples
 

@@ -1,8 +1,10 @@
 import typer
+import asyncio
 
 from typing import Annotated
-from app.agents.assistant_agent import assistant_agent
 from app.core.database import db, init_database
+from app.agents.adk_agent import adk_assistant_agent
+from app.agents.assistant_agent import assistant_agent
 
 
 cli_app: typer.Typer = typer.Typer(
@@ -115,6 +117,53 @@ def show_history(
             color: str = typer.colors.WHITE if msg["role"] == "user" else typer.colors.GREEN
             typer.secho(f"{role_label}: ", fg=color, bold=True, nl=False)
             typer.echo(f"{msg['content']}\n")
+    finally:
+        _cleanup_resources()
+
+
+@cli_app.command("adk-chat")
+def interactive_adk_chat(
+    session_id: Annotated[
+        str,
+        typer.Option(
+            "--session-id",
+            "-s",
+            help="ADK session identifier.",
+        ),
+    ] = "adk-default-session",
+) -> None:
+    """Starts an interactive multi-turn chat session using Google ADK."""
+    init_database()
+    typer.secho(
+        f"\nGoogle ADK Agent CLI ready | Session: '{session_id}' | Type 'exit' or 'quit' to stop.\n",
+        fg=typer.colors.CYAN,
+        bold=True,
+    )
+
+    try:
+        while True:
+            user_input: str = typer.prompt("You").strip()
+
+            if not user_input:
+                continue
+
+            if user_input.lower() in {"exit", "quit"}:
+                typer.secho("ADK session ended. Goodbye!", fg=typer.colors.YELLOW)
+                break
+
+            answer, tools_used = asyncio.run(
+                adk_assistant_agent.run(user_input, session_id=session_id)
+            )
+
+            if tools_used:
+                typer.secho(f"[ADK Tools used: {', '.join(tools_used)}]", fg=typer.colors.MAGENTA)
+
+            typer.secho("\nADK Agent: ", fg=typer.colors.GREEN, bold=True, nl=False)
+            typer.echo(f"{answer}\n")
+
+    except (KeyboardInterrupt, typer.Abort):
+        typer.secho("\nSession interrupted.", fg=typer.colors.YELLOW)
+
     finally:
         _cleanup_resources()
 

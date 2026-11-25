@@ -1,6 +1,15 @@
 from fastapi import APIRouter, Path
 from app.agents.adk_agent import adk_assistant_agent
-from app.schemas.chat import ChatHistoryResponse, ChatRequest, ChatResponse, HistoryMessage
+from app.agents.adk_workflow import adk_audit_workflow
+
+from app.schemas.chat import (
+    AuditRequest,
+    AuditResponse,
+    ChatHistoryResponse,
+    ChatRequest,
+    ChatResponse,
+    HistoryMessage,
+)
 
 router: APIRouter = APIRouter()
 
@@ -36,3 +45,21 @@ async def get_adk_session_history(
     ]
 
     return ChatHistoryResponse(session_id=session_id, messages=formatted_messages)
+
+
+@router.post("/audit", response_model=AuditResponse)
+async def run_adk_audit_workflow(payload: AuditRequest) -> AuditResponse:
+    """
+    Executes the deterministic ADK ParallelAgent -> SequentialAgent audit pipeline.
+    """
+    report, executed_agents, tools_used = await adk_audit_workflow.run(
+        scope=payload.scope,
+        session_id=payload.session_id,
+    )
+
+    return AuditResponse(
+        session_id=payload.session_id,
+        report=report,
+        executed_agents=executed_agents,
+        tools_used=tools_used,
+    )

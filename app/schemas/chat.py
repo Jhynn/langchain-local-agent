@@ -38,3 +38,29 @@ class HistoryMessage(BaseModel):
 class ChatHistoryResponse(BaseModel):
     session_id: str
     messages: list[HistoryMessage]
+
+class AuditRequest(BaseModel):
+    session_id: str = Field(
+        default="audit-run-01",
+        min_length=1,
+        max_length=100,
+        description="Unique session identifier for the audit workflow run",
+    )
+    scope: str = Field(
+        default="Generate a complete corporate expense audit report covering department totals and pending approvals.",
+        min_length=1,
+        description="Audit scope or instructions passed to the parallel collectors",
+    )
+
+
+class AuditResponse(BaseModel):
+    session_id: str
+    report: str
+    executed_agents: list[str] = Field(
+        default_factory=list,
+        description="Agents executed across the parallel and sequential stages",
+    )
+    tools_used: list[str] = Field(
+        default_factory=list,
+        description="Tools invoked across the parallel data collection branches",
+    )

@@ -6,6 +6,8 @@ from app.core.database import db, init_database
 from app.agents.adk_agent import adk_assistant_agent
 from app.agents.assistant_agent import assistant_agent
 
+from app.agents.adk_workflow import adk_audit_workflow
+
 
 cli_app: typer.Typer = typer.Typer(
     name="agent-cli",
@@ -166,6 +168,43 @@ def interactive_adk_chat(
 
     except (KeyboardInterrupt, typer.Abort):
         typer.secho("\nSession interrupted.", fg=typer.colors.YELLOW)
+
+    finally:
+        _cleanup_resources()
+
+@cli_app.command("adk-audit")
+def run_adk_audit(
+    scope: Annotated[
+        str,
+        typer.Option(
+            "--scope",
+            help="Audit instructions for the parallel data collectors.",
+        ),
+    ] = "Audit all corporate expenses by department and list pending approvals.",
+    session_id: Annotated[
+        str,
+        typer.Option(
+            "--session-id",
+            "-s",
+            help="Session identifier for the workflow execution.",
+        ),
+    ] = "cli-audit-01",
+) -> None:
+    """Runs the deterministic Google ADK Parallel + Sequential audit workflow."""
+    init_database()
+    typer.secho("\nRunning deterministic ADK audit pipeline...\n", fg=typer.colors.CYAN, bold=True)
+
+    try:
+        report, executed_agents, tools_used = asyncio.run(
+            adk_audit_workflow.run(scope=scope, session_id=session_id)
+        )
+        typer.secho(f"[Executed Agents: {' -> '.join(executed_agents)}]", fg=typer.colors.BLUE)
+
+        if tools_used:
+            typer.secho(f"[Tools Used: {', '.join(tools_used)}]", fg=typer.colors.MAGENTA)
+
+        typer.secho("\n--- Consolidated Audit Report ---\n", fg=typer.colors.GREEN, bold=True)
+        typer.echo(report)
 
     finally:
         _cleanup_resources()
